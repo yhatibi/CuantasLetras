@@ -1,55 +1,53 @@
 package com.example.cuantasletras;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class FragmentCalcularLetraViewModel extends AndroidViewModel {
+public class CalcularLetraViewModel extends AndroidViewModel {
     MutableLiveData<Boolean> calculando = new MutableLiveData<>();
 
     Executor executor;
-
-
-    SimuladorContadorLetras simulador;
+    ContadorLetras contadorLetras;
 
     MutableLiveData<Character> letra = new MutableLiveData<>();
     MutableLiveData<String> palabra = new MutableLiveData<>();
-    MutableLiveData<Integer> contadorLetras = new MutableLiveData<>();
-    MutableLiveData<String> errorLetranumero = new MutableLiveData<>();
+    MutableLiveData<Integer> letrasContadas = new MutableLiveData<>();
+    MutableLiveData<Integer> maxLeng = new MutableLiveData<>();
 
-    public FragmentCalcularLetraViewModel(@NonNull Application application) {
+    public CalcularLetraViewModel(@NonNull Application application) {
         super(application);
 
         executor = Executors.newSingleThreadExecutor();
-        simulador = new SimuladorContadorLetras();
+        contadorLetras = new ContadorLetras();
     }
 
 
     public void calcular(final String palabra, final char letra) {
 
-        final SimuladorContadorLetras.Solicitud solicitud = new SimuladorContadorLetras.Solicitud(palabra, letra);
+        final ContadorLetras.Solicitud solicitud = new ContadorLetras.Solicitud(palabra, letra);
 
         executor.execute(new Runnable() {
             @Override
             public void run() {
 
-                simulador.calcularCuantasLetras(solicitud, new SimuladorContadorLetras.Callback() {
-
-
+                contadorLetras.calcularCuantasLetras(solicitud, new ContadorLetras.Callback() {
                     @Override
-                    public void cuantasLetrasHay(int letrasContadas) {
-                        contadorLetras.postValue(letrasContadas);
+                    public void cuantasLetrasHay(int lc) {
+                        maxLeng.postValue(null);
+                        letrasContadas.postValue(lc);
                     }
 
                     @Override
-                    public void cuandoInputNoSeaString(String noEsString) {
-
+                    public void cuandoErrorLongitud(int longMax) {
+                        Log.e("ABCD", "error vm");
+                        maxLeng.postValue(longMax);
                     }
 
                     @Override

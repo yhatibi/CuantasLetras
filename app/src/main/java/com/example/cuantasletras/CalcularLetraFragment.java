@@ -2,7 +2,6 @@ package com.example.cuantasletras;
 
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Bundle;
 
@@ -17,12 +16,12 @@ import android.widget.EditText;
 
 import com.example.cuantasletras.databinding.FragmentCalcularLetraFragmentBinding;
 
-public class FragmentCalcularLetra extends Fragment {
+public class CalcularLetraFragment extends Fragment {
     private FragmentCalcularLetraFragmentBinding binding;
 
 
-    public static FragmentCalcularLetra newInstance() {
-        return new FragmentCalcularLetra();
+    public static CalcularLetraFragment newInstance() {
+        return new CalcularLetraFragment();
     }
 
     @Override
@@ -34,24 +33,37 @@ public class FragmentCalcularLetra extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        final FragmentCalcularLetraViewModel fragmentCalcularLetraViewModel = new ViewModelProvider(this).get(FragmentCalcularLetraViewModel.class);
+        final CalcularLetraViewModel calcularLetraViewModel = new ViewModelProvider(this).get(CalcularLetraViewModel.class);
 
         binding.calcular.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                String palabra = String.valueOf(binding.palabra);
-                char letra =  Character.valueOf(binding.letra.getText().charAt(0));
-                fragmentCalcularLetraViewModel.calcular(palabra, letra);
+                String palabra = binding.palabra.getText().toString();
+                char letra =  binding.letra.getText().toString().charAt(0);
+                calcularLetraViewModel.calcular(palabra, letra);
             }
         });
 
-        fragmentCalcularLetraViewModel.contadorLetras.observe(getViewLifecycleOwner(), new Observer<Double>() {
+        calcularLetraViewModel.letrasContadas.observe(getViewLifecycleOwner(), new Observer<Integer>() {
             @Override
-            public void onChanged(Double cuota) {
-                binding.sumaLetras.setText(fragmentCalcularLetraViewModel.calcular("hola", 'a'));
+            public void onChanged(Integer integer) {
+                binding.sumaLetras.setText(""+integer);
             }
         });
+
+        calcularLetraViewModel.maxLeng.observe(getViewLifecycleOwner(), new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                if(integer == null){
+                    binding.sumaLetras.setText("");
+                } else {
+                    binding.sumaLetras.setText("ERROR: Maximo de "+integer+" caraacteres");
+                }
+            }
+        });
+
+
 
 //        fragmentCalcularLetraViewModel.errorCapital.observe(getViewLifecycleOwner(), new Observer<Double>() {
 //            @Override
@@ -75,7 +87,7 @@ public class FragmentCalcularLetra extends Fragment {
 //            }
 //        });
 
-        fragmentCalcularLetraViewModel.calculando.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+        calcularLetraViewModel.calculando.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean calculando) {
                 if (calculando) {
