@@ -13,29 +13,80 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+
+import com.example.cuantasletras.databinding.FragmentCalcularLetraFragmentBinding;
 
 public class FragmentCalcularLetra extends Fragment {
+    private FragmentCalcularLetraFragmentBinding binding;
 
-    private FragmentCalcularLetraViewModel mViewModel;
-    private String palabra;
 
     public static FragmentCalcularLetra newInstance() {
         return new FragmentCalcularLetra();
     }
-    private FragmentCalcularLetra binding;
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_calcular_letra_fragment, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return (binding = FragmentCalcularLetraFragmentBinding.inflate(inflater, container, false)).getRoot();
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(FragmentCalcularLetraViewModel.class);
-        // TODO: Use the ViewModel
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
+        final FragmentCalcularLetraViewModel fragmentCalcularLetraViewModel = new ViewModelProvider(this).get(FragmentCalcularLetraViewModel.class);
+
+        binding.calcular.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                String palabra = String.valueOf(binding.palabra);
+                char letra =  Character.valueOf(binding.letra.getText().charAt(0));
+                fragmentCalcularLetraViewModel.calcular(palabra, letra);
+            }
+        });
+
+        fragmentCalcularLetraViewModel.contadorLetras.observe(getViewLifecycleOwner(), new Observer<Double>() {
+            @Override
+            public void onChanged(Double cuota) {
+                binding.sumaLetras.setText(fragmentCalcularLetraViewModel.calcular("hola", 'a'));
+            }
+        });
+
+//        fragmentCalcularLetraViewModel.errorCapital.observe(getViewLifecycleOwner(), new Observer<Double>() {
+//            @Override
+//            public void onChanged(Double capitalMinimo) {
+//                if (capitalMinimo != null) {
+//                    binding.sumaLetras.setError("El capital no puede ser inferor a " + capitalMinimo + " euros");
+//                } else {
+//                    binding.sumaLetras.setError(null);
+//                }
+//            }
+//        });
+//
+//        fragmentCalcularLetraViewModel.contadorLetras.observe(getViewLifecycleOwner(), new Observer<Integer>() {
+//            @Override
+//            public void onChanged(Integer plazoMinimo) {
+//                if (plazoMinimo != null) {
+//                    binding.sumaLetras.setError("El plazo no puede ser inferior a " + plazoMinimo + " años");
+//                } else {
+//                    binding.sumaLetras.setError(null);
+//                }
+//            }
+//        });
+
+        fragmentCalcularLetraViewModel.calculando.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean calculando) {
+                if (calculando) {
+                    binding.calculando.setVisibility(View.VISIBLE);
+                    binding.sumaLetras.setVisibility(View.GONE);
+                } else {
+                    binding.calculando.setVisibility(View.GONE);
+                    binding.sumaLetras.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
 
